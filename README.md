@@ -457,10 +457,51 @@
   swapon /dev/sda2 # Activamos Swap
   ```
 
-  <p>Y con esto ya tenemos creadas las particiones</p>
+  <p>Y con esto ya tenemos creadas las particiones y montadas sobre el File System del USB para poder instalar el sistema<br>
+    Luego si querés saber cómo quedaron las particiones podés usar este comando:
+  </p>
+
+  ```sh
+  fdisk -l
+  ```
+
+  <br>
+  <div align="center">
+    <img alt="particiones" src="img/fdisk.png" />
+  </div>
+
 </div>
 
+<div class="mirrorlist">
+  <h3>Configurando los mirrors</h3>
+  <p>
+    Los paquetes que instalamos se descargan de servidores que están repartidos por todo el mundo, hay un archivo que ahora vamos a revisar, que tiene en orden de prioridad descendente cada uno de los servidores. Normalmente ya viene configurado con los mirrors más rápidos para nuestra ubicación. Lo podemos ver con el siguiente comando:
+  </p>
 
+  ```sh
+  cat /etc/pacman.d/mirrorlist
+  ```
+  <br>
+  <div align="center">
+    <img alt="mirrorlist" src="img/mirrorlist.png" />
+  </div>
+
+  <p>Si ves algo como lo de la imagen, entonces ya podés continuar a la próxima sección, sino quedate que los vamos a configurar con una herramienta que nos permite seleccionar los servidores más rápidos.<br>
+  Vamos a usar <code>Reflector</code> que es una herramienta que se va a encargar de probar todos los servidores actualizados y meterlos en el archivo mirrorlist ordenados según la velocidad. Lo haremos con el siguiente comando:</p>
+
+  ```sh
+  cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak ## Creamos un Backup por las dudas
+  reflector --verbose --latest 5 --save /etc/pacman.d/mirrorlist ## Hacemos la magia
+  cat /etc/pacman.d/mirrorlist ## Comprobamos que se han añadido los servidores
+
+  ## Y si algo salió mal:
+  cp /etc/pacman.d/mirrorlist.bak /etc/pacman.d/mirrorlist ## Levantamos el backup.
+
+  ## Sino ya podemos borrar el backup
+  rm /etc/pacman.d/mirrorlist.bak
+  ```
+
+</div>
 
 
 <br><br><br><br><br><br><br><br><br>
