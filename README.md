@@ -1,21 +1,23 @@
-<div style="display: flex; align-items:center">
+<div align="center">
+  <div style="display: flex; align-items: flex-start;">
 
-  <img alt="arch logo" src="img/archlogo.png" width="200" height="200" />
+    <img alt="arch logo" src="img/archlogo.png" width="100" height="100" />
 
-  <div>
     <h1>Guía de Instalación de Arch Linux en Español</h1>
-    <p align="justify">Arch Linux es una distrubución de GNU/LINUX que sigue un modelo de lanzamiento
-      contínuo <<<i>Rolling Release</i>>>, o sea que cada vez que se lanza una nueva versión no es necesario reinstalar
-        todo el sistema. Además la instalación deja únicamente lo estrictamente necesario para funcionar. El proceso de
-        instalación puede ser complejo y por eso elaboré esta guía de la forma más sencilla posible intentando explicar
-        qué hace cada cosa.
-        Para el seguimiento de esta guía se asume que se conocen los comandos básicos de Linux tales como
-        <code>ls, cd, cat, vim, nano, mkdir</code>, etc así como también un conocimiento básico sobre grupos, usuarios y
-        permisos; manejo de particiones, file system, archivos e inglés básico.
-    </p>
-  </div>
 
+
+  </div>
 </div>
+
+<p align="justify">Arch Linux es una distrubución de GNU/LINUX que sigue un modelo de lanzamiento
+  contínuo <<<i>Rolling Release</i>>>, o sea que cada vez que se lanza una nueva versión no es necesario reinstalar
+    todo el sistema. Además la instalación deja únicamente lo estrictamente necesario para funcionar. El proceso de
+    instalación puede ser complejo y por eso elaboré esta guía de la forma más sencilla posible intentando explicar
+    qué hace cada cosa.
+    Para el seguimiento de esta guía se asume que se conocen los comandos básicos de Linux tales como
+    <code>ls, cd, cat, vim, nano, mkdir</code>, etc así como también un conocimiento básico sobre grupos, usuarios y
+    permisos; manejo de particiones, file system, archivos e inglés básico.
+</p>
 <br>
 <br>
 <!-- Index -->
