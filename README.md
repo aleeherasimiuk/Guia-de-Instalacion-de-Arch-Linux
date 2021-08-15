@@ -24,13 +24,14 @@
   <h2>Índice</h2>
   <ul>
     <li><a href="#disclaimer">Disclaimer</a></li>
-    <li><a href="#boot">Preparación del medio de instalación</a></li>
-    <li><a href="#antesDeEmpezar">Antes de empezar</a></li>
     <li><a href="#guiaoficial">Guía oficial de Instalación</a></li>
+    <li><a href="#antesDeEmpezar">Antes de empezar</a></li>
+    <li><a href="#boot">Preparación del medio de instalación</a></li>
     <li><a href="#preparacion">Preparándonos para la instalación</a></li>
     <li><a href="#configurandoTeclado">Configuración del Teclado</a></li>
     <li><a href="#internet">Conectándonos a Internet</a></li>
     <li><a href="#fechaYHora">Configurando la Fecha y la Hora</a></li>
+    <li><a href="#particiones">Creando, formateando y montando las Particiones</a></li>
   </ul>
 </div>
 
@@ -176,7 +177,7 @@
   ```
 
   <p>
-    Te recuerdo que para salir de vim, escribir <code>:q</code> y presionar enter.
+    Te recuerdo que para salir de vim, tenés que escribir <code>:q</code> y presionar enter.
     <br><br>
     Teniendo ya el teclado configurado podemos continuar con la instalación
   </p>
@@ -203,18 +204,18 @@
 
   <p>
     <br>
-    En ese caso podés continuar a la siguiente sección. Sino quedate que vamos a configurar el wifi.
+    En ese caso podés continuar a la siguiente sección. Sino quedate que vamos a configurar el WiFi.
     <br>
     El instalador de Arch Linux viene con una herramienta que nos va a servir para conectarnos al WiFi durante la
     instalación que se llama <code>iwctl</code>.
-    Para acceder tenes que escribir:
+    Para acceder tenés que escribir:
   </p>
 
   ```sh
   iwctl
   ```
   <p>
-    Y habrás entrado a una consola interactiva de iwctl en donde podemos escribir los comando para conectarnos al WiFi.
+    Y habrás entrado a una consola interactiva de iwctl en donde podemos escribir los comandos para conectarnos al WiFi.
     Para ver los adaptadores de red conectados:
   </p>
 
@@ -279,10 +280,10 @@
 <div class="particiones">
   <h3>Creando las Particiones</h3>
   <p>
-    <i>Ahora sí se viene lo chido</i> diria Luisito Comunica. <br>
+    <i>Ahora sí se viene lo chido...</i> diria Luisito Comunica. <br>
     Ya que tenemos la instalación del sistema preparada, vamos a crear las particiones que vamos a necesitar.
     <br>
-    Si ya tenés Windows instalado, entonces ya hay particiones hechas que NO TENES QUE TOCAR. Entre ellas la EFI
+    Si ya tenés Windows instalado, entonces ya hay particiones hechas que <b>NO TENES QUE TOCAR</b>. Entre ellas la EFI
     Partition y la partición de Windows (El disco C digamos...).<br>
     En mi caso no tengo Windows instalado y crearé las particiones de cero, pero vos ya tendrás 2 o más particiones
     asignadas.<br>
@@ -294,7 +295,7 @@
   ```
 
   <p>
-    Si estás en una Máquina virtual habrás visto algo como lo siguiente:
+    Si estás en una Máquina virtual o haciendo una instalación limpia habrás visto algo como lo siguiente:
   </p>
 
   <div align="center">
@@ -302,7 +303,7 @@
   </div>
 
   <p>
-    En cambio si estás instalando en una PC real habrás visto algo más similar a lo siguiente:
+    En cambio si estás instalando en una PC con windows instalado habrás visto algo más similar a lo siguiente:
   </p>
 
   <div align="center">
@@ -389,7 +390,7 @@
     - 550MiB para EFI Partition<br>
     - 20G para Root<br>
     - 5G para Home<br>
-    - El resto para swap para Swap<br>
+    - El resto para Swap<br>
     <br><br>
     Prestá atención a cómo escribí las dimensiones. <br><br>
     Y con si seleccionamo <code>[Type]</code> vamos a poder seleccionar el tipo. <br><br>
@@ -413,7 +414,7 @@
     - /dev/sda2 para Root<br>
     - /dev/sda3 para Home<br>
     - /dev/sda4 para Swap<br><br><br>
-    Finalmente le damos a <code>[WRITE]</code>, confirmamos la operación y salimos con <code>[QUIT]</code>.
+    Finalmente le damos a <code>[Write]</code>, confirmamos la operación y salimos con <code>[Quit]</code>.
   </p>
 
   <h4>Formateando y Montando las particiones</h4>
@@ -428,7 +429,7 @@
   ```
 
   <p>
-    Ahora toca formatear la partición EFI. SOLAMENTE SI LA ACABÁS DE CREAR SINO NO HAGAS ESTE COMANDO.
+    Ahora toca formatear la partición EFI. SOLAMENTE SI LA ACABÁS DE CREAR SINO NO EJECUTES ESTE COMANDO.
   </p>
   
   ```sh
