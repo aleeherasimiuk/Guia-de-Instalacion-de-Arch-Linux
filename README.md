@@ -1,11 +1,7 @@
 <div align="center">
   <div style="display: flex; align-items: flex-start;">
-
     <img alt="arch logo" src="img/archlogo.png" width="100" height="100" />
-
     <h1>Guía de Instalación de Arch Linux en Español</h1>
-
-
   </div>
 </div>
 
