@@ -30,6 +30,10 @@
     <li><a href="#internet">Conectándonos a Internet</a></li>
     <li><a href="#fechaYHora">Configurando la Fecha y la Hora</a></li>
     <li><a href="#particiones">Creando, formateando y montando las Particiones</a></li>
+    <li><a href="#mirrorlist">Configurando los mirrors</a></li>
+    <li><a href="#instalacion">Instalando el sistma</a></li>
+    <li><a href="#configuracionBasica">Configuración básica</a></li>
+    <li><a href="#usuarios">Creando el usuario</a></li>
   </ul>
 </div>
 
@@ -486,7 +490,7 @@
     <img alt="mirrorlist" src="img/mirrorlist.png" />
   </div>
 
-  <p>Si ves algo como lo de la imagen, entonces ya podés continuar a la próxima sección, sino quedate que los vamos a configurar con una herramienta que nos permite seleccionar los servidores más rápidos.<br>
+  <p>Si ves algo como lo de la imagen, entonces ya podés continuar a la próxima sección, sino quedate que los vamos a configurar.<br>
   Vamos a usar <code>Reflector</code> que es una herramienta que se va a encargar de probar todos los servidores actualizados y meterlos en el archivo mirrorlist ordenados según la velocidad. Lo haremos con el siguiente comando:</p>
 
   ```sh
@@ -502,6 +506,344 @@
   ```
 
 </div>
+
+<div class="instalacion">
+  <h3>Ahora sí. Instalamos el sistema</h3>
+  <p>
+    Para instalar el sistema, el instalador de Arch Linux nos provee de una herramienta llamada <code>pacstrap</code> y lo vamos a usar de la siguiente manera:
+  </p>
+
+  ```sh
+  pacstrap /mnt base linux linux-firmware
+  ```
+
+  <p>Puede que tarde un rato, mientras se instala te cuento que esta herramienta va a usar los servidores que configuramos hace un ratito y va a descargar el sistema e instalarlo sobre <code>/</code> ¿Te acordás que lo montamos en <code>/mnt</code> no? Luego usaremos otra herramienta llamada <code>Pacman</code> para instalar los paquetes<br><br>
+  Bien. Ya tenemos Arch Linux instalado, pero esto todavía no termina. Nos vemos en la próxima sección.
+  </p>
+
+</div>
+
+<div class="fstab">
+  <h3>Generando el archivo fstab</h3>
+  <p>
+    ¿Te acordás que hace un rato montamos las particiones a mano con el comando <code>mount</code>? <br>
+    Bien, hacer eso todo el tiempo es insano, por eso el Sistema Operativo tiene un archivo con la tabla de File Systems y se encarga de automatizar el proceso. Para generar ese archivo lo hacemos de la siguiente manera:
+  </p>
+
+  ```sh
+  genfstab -U /mnt >> /mnt/etc/fstab
+  ```
+
+  <p>
+    Y si por curiosidad queremos verlo podemos hacer:
+  </p>
+
+  ```sh
+  cat /mnt/etc/fstab
+  ```
+  <br>
+
+  <p>Se vería algo así:</p>
+  <div align="center">
+    <img alt="fstab" src="img/fstab.png" />
+  </div>
+</div>
+
+<div class = "configuracionBasica">
+  <h3>Configurando el sistema</h3>
+  <p>
+    Lo primero es movernos al Root de nuestra máquina que creamos hace un rato y donde instalamos el sistema operativo:
+  </p>
+
+  ```sh
+  arch-chroot /mnt
+  ```
+  <br>
+  <p>
+    Para definir la zona horaria vamos a crear un Soft Link de nuestra región+ciudad.<br>
+    Para ver qué regiones hay disponibles lo hacecmos con:
+  </p>
+
+  ```sh
+  ls /usr/share/zoneinfo/
+  ```
+  <br>
+  <p>
+    Y si queremos ver qué ciudad hay para una región tenemos que hacer:
+  </p>
+
+  ```sh
+  ls /usr/share/zoneinfo/America/
+  ```
+  <br>
+  <p>
+    Finalmente lo seteamos:
+  </p>
+
+  ```sh
+  ln -s /usr/share/zoneinfo/America/Buenos_Aires /etc/localtime
+  ```
+
+  <p>
+    Para configurar la hora usamos hwclock que va a generar el archivo <code>/etc/adjtime</code>:
+  </p>
+
+  ```sh
+  hwclock --systohc
+  ```
+
+  <br>
+  <p>
+    Ahora toca configurar el idioma.
+    Para ver los idiomas disponibles podemos ver el archivo haciendo:
+  </p>
+
+  ```sh
+  cat /etc/locale.gen
+  ```
+
+  <br>
+  <p>Sí, ya se, no entran en la pantalla. Para ver los que nos interesan podemos usar:</p>
+
+  ```sh
+  cat /etc/locale.gen | grep -E "en|es" | grep UTF
+  ```
+  <br>
+  <p>
+    Elegimos uno (o alguno) de esos. Y hacemos lo siguiente. En mi caso voy a seleccionar inglés de Estados unidos y español de Argentina, pero vos podes seleccionar el que más te guste.
+  </p>
+
+  ```sh
+  echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+  echo "es_AR.UTF-8" >> /etc/locale.gen
+  ```
+
+  <br>
+  <p>
+    Y los generamos con:
+  </p>
+  
+  ```sh
+  locale-gen
+  ```
+
+  <br>
+
+  <p>
+    Si querés ver el idioma seteado podés hacer:
+  </p>
+
+  ```sh
+  locale
+  ```
+
+  <br>
+
+  <p>
+    Y si querés cambiar el idioma podés hacer:
+  </p>
+
+  ```sh
+  localectl set-locale LANG=en_US.UTF-8
+  ```
+
+  <br>
+
+  <p>
+    Ahora seteamos el layout del teclado (si, de nuevo, pero ahora en el Sistema Operativo instalado)
+  </p>
+
+  ```sh
+  echo "KEYMAP=la-latin1" > /etc/vconsole.conf
+  ```
+
+
+  <br>
+
+  <p>
+    Tenemos que definir un nombre para el equipo. El mío se va a llamar <code>archvm</code> y lo hacemos de la siguiente manera:
+  </p>
+
+  ```sh
+  echo "archvm" > /etc/hostname
+  ```
+
+  <br>
+
+  <p>
+    Definimos el archivo /etc/hosts. <br>
+    Reemplazá archvm por el nombre de tu equipo.<br>
+    Revisá que esté todo bien copiado
+  </p>
+
+  ```sh
+  echo "127.0.0.1\tlocalhost" >> /etc/hosts
+  echo "::1\t\tlocalhost" >> /etc/hosts
+  echo "127.0.1.1\tarchvm.localhost archvm" >> /etc/hosts
+  ```
+  <br>
+  <p>
+    Tuvo que haber quedado algo así:
+  </p>
+
+  ```sh
+  cat /etc/hosts
+  ```
+
+  <div align="center">
+    <img alt="hosts" src="img/hosts.png" />
+  </div>
+
+  <br>
+
+  <p>
+    Con esto ya terminamos la parte más pesada de la instalación. Continuamos con la configuración del usuario, pero antes vemos cómo instalar paquetes.
+  </p>
+</div>
+
+<div class = "instalandoProgramas">
+  <h3>Instalando Programas</h3>
+
+  <p>El gestor de paquetes por defecto de Arch Linux es <code>Pacman</code>, como luego vamos a tener que usarlo paso a explicar ahora como funciona. Memorizate estos comandos porque los vas a necesitar:</p>
+
+  ```sh
+  pacman -S <nombre_paquete> ## Instala un paquete
+  pacman -Rns <nombre_paquete> ## Desinstalar un paquete
+  pacman -Sy ## Actualiza la base de datos de los paquetes
+  pacman -Syu ## Actualizar todos los paquetes y el Sistema Operativo
+  pacman -h ## Listar las posibles opciones que te acabo de listar
+  ```
+
+  <p>Entonces vamos a instalar algunas cosas como por ejemplo un editor de texto. Yo uso vim, pero si preferís usar nano, neovim, o algun otro podés instalarlo de igual manera:</p>
+
+  ```sh
+  pacman -S vim
+  ```
+
+  <p>Podemos instalar varios paquetes de una también:</p>
+
+  ```sh
+  pacman -S vim nano htop neofetch
+  ```
+
+
+
+</div>
+
+<div class = "usuario">
+  <h3>Creando el usuario</h3>
+
+  <p>
+    Lo primero es definir la contraseña del root.
+  </p>
+
+  ```sh
+  passwd
+  ```
+
+  <br>
+
+  <p>
+    Y ahora creamos el usuario, en mi caso lo voy a llamar batman, vos llamalo como quieras. <br>
+    Luego le asignamos una contraseña.
+  </p>
+
+  ```sh
+  useradd -m batman
+
+  passwd batman
+  ```
+
+  <br>
+
+  <p>
+    Vamos a instalar <code>sudo</code> para poder ejecutar comandos con privilegios de root.
+  </p>
+
+  ```sh
+  pacman -S sudo
+  ```
+
+  <p>Luego usando vim (o el editor que hayas instalado) descomentamos (borramos el <code>#</code>) la siguiente línea en <code>/etc/sudoers</code></p>
+
+  ```sh
+  ## Usamos este comando
+  vim /etc/sudoers
+
+  ## Y descomentamos esta línea
+  %wheel ALL=(ALL) ALL
+
+  ## Salimos de vim con ESC y escribimos :wq!
+  ```
+
+  <br>
+
+  <p>Si leíste lo que estamos haciendo, dice que hay que descomentar la línea para que todos aquellos usuarios que estén en el grupo<code>wheel</code> puedan ejecutar comandos de sudo, con lo cual ahora toca asignarnos ese grupo. <br>
+  Aparte de eso, vamos también a asignarnos otros grupos que podrían llegar a ser necesarios:</p>
+
+  ```sh
+  usermod -aG wheel,audio,video,storage batman
+  ```
+
+  <br>
+
+</div>
+
+<div class = "internet2">
+  <h3>Instalando Network Manager</h3>
+
+  <p>Sí, ya se que ya nos habíamos conectado a internet, pero eso fue en el instalador, ahora nos tenemos que conectar en nuestro sistema operativo recién instalado. Para eso vamos a usar la utilidad <code>Network Manager</code></p>
+
+  ```sh
+  pacman -S networkmanager
+  ```
+
+  <p>Ya tenemos instalado el servicio, pero aún tenemos que habilitarlo para que se inicie junto con el sistema operativo y quede ejecutándose:</p>
+
+  ```sh
+  systemctl enable NetworkManager
+  ```
+
+  <p>Todavía no nos vamos a conectar, porque seguimos con la conexión que teníamos en el instalador. Luego de reiniciar nos conectamos</p>
+
+</div>
+
+<div class = "grub">
+  <h3>Instalando GRUB</h3>
+  <p>
+    Ahora toca instalar Grub, que es el gestor de arranque de nuestro sistema operativo.<br>
+    Nos va a permitir elegir el sistema operativo con el que vamos a arrancar cada vez que iniciemos la PC. Para eso vamos a ejecutar los siguientes comandos:
+  </p>
+
+  ```sh
+  ## Lee bien cada comando antes de ejecutarlo
+  pacman -S grub efibootmgr
+  grub-install --target=x86_64-efi --efi-directory=/boot 
+  grub-mkconfig -o /boot/grub/grub.cfg
+  ```
+
+  <p>Luego hay que cruzar los dedos, reiniciar y sacar el pen drive</p>
+
+  ```sh
+  exit
+  umount -R /mnt
+  reboot
+  ```
+
+  <p>Si todo salió bien, al reiniciar se habrá iniciado GRUB y te dió a elegir la posibilidad de entrar a Arch Linux habiendo llegado a algo como esto:</p>
+
+  <div align="center">
+    <img alt="listo" src="img/listo.png" />
+  </div>
+
+  <p>
+    Ponemos nuestro usuario y contraseña y ya hemos terminado con la instalación del Sistema Operativo.
+  </p>
+
+  
+</div>
+
+
 
 
 <br><br><br><br><br><br><br><br><br>
