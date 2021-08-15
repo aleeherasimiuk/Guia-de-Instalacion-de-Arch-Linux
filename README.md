@@ -341,14 +341,13 @@
     <code>ext4</code>.<br>
     Acá vamos a instalar el Sistema Operativo y todos los programas.<br><br>
     Si estás instalando sobre una PC real necesita tener por lo menos unos 25Gb de espacio (aunque puede ser más, en mi caso he necesitado hasta 50Gb).<br><br>
-    En el caso de la máquina virtual le podemos dar un puñado de GB que total es de juguete.
   </p>
 
   <h4>Home</h4>
   <p>
     La partición HOME la vamos a montar en <code>/home</code> y la vamos a formatear como <code>ext4</code> también.<br>
     Acá van a estar todos los archivos personales (Por ejemplo todo lo que está en el escritorio, la carpeta de descargas, fotos, videos, configuraciones, etc)<br>
-    Vamos a asignarle todo el resto del espacio que queda excepto unos GB que vamos a usar para el Swap.
+    Vamos a asignarle todo el resto del espacio que nos sobre
   </p>
 
   <h4>Swap</h4>
@@ -384,11 +383,11 @@
     <br>
     Acá te podés mover con las flechas hacia arriba y abajo para seleccionar la partición, o izquierda y derecha para seleccionar una opción.
     <br>
-    Si nos paramos en <code>Free Space</code> y seleccionamos <code>[New]</code> nos preguntará el espacio que le queremos asignar y vamos poner lo que ya anotamos antes, en mi caso: <br><br>
+    Si nos paramos en <code>Free Space</code> y seleccionamos <code>[New]</code> nos preguntará el espacio que le queremos asignar y vamos poner lo que ya anotamos antes, en mi caso voy a instalarlo en un disco de 120GB y lo haré de la siguiente manera: <br><br>
     - 550MiB para EFI Partition<br>
-    - 20G para Root<br>
-    - 5G para Home<br>
-    - El resto para Swap<br>
+    - 4GB para Swap<br>
+    - 25G para Root<br>
+    - 90G para Home<br>
     <br><br>
     Prestá atención a cómo escribí las dimensiones. <br><br>
     Y con si seleccionamo <code>[Type]</code> vamos a poder seleccionar el tipo. <br><br>
@@ -396,7 +395,6 @@
     - Linux Root (x86-64) para Root<br>
     - Linux Home para Home<br>
     - Linux Swap para la Swap<br><br>
-    Lo normal sería que quede más espacio para Home que para Root pero como estoy instalando en una máquina virtual, no me importa.
     <br><br>
     Sacale foto a como quedó, lo vas a necesitar. A mí me quedó algo así:
   </p>
@@ -409,9 +407,9 @@
   <p>
     Entonces nos queda:<br><br>
     - /dev/sda1 para EFI Partition<br>
-    - /dev/sda2 para Root<br>
-    - /dev/sda3 para Home<br>
-    - /dev/sda4 para Swap<br><br><br>
+    - /dev/sda2 para Swap<br>
+    - /dev/sda3 para Root<br>
+    - /dev/sda4 para Home<br><br><br>
     Finalmente le damos a <code>[Write]</code>, confirmamos la operación y salimos con <code>[Quit]</code>.
   </p>
 
@@ -422,8 +420,8 @@
   </p>
 
   ```sh
-  mkfs.ext4 /dev/sda2
   mkfs.ext4 /dev/sda3
+  mkfs.ext4 /dev/sda4
   ```
 
   <p>
@@ -439,7 +437,7 @@
   </p>
 
   ```sh
-  mkswap /dev/sda4
+  mkswap /dev/sda2
   ```
 
   <p>
@@ -448,15 +446,15 @@
   </p>
 
   ```sh
-  mount /dev/sda2 /mnt # Montamos Root sobre /mnt
+  mount /dev/sda3 /mnt # Montamos Root sobre /mnt
 
   mkdir /mnt/home # Creamos la carpeta Home
-  mount /dev/sda3 /mnt/home # Montamos Home sobre /mnt/home
+  mount /dev/sda4 /mnt/home # Montamos Home sobre /mnt/home
 
   mkdir /mnt/boot # Creamos la carpeta Boot
-  mount /dev/sda1 /mnt/boot # Montamos EFI sobre /mnt/boot
+  mount /dev/sda1 /mnt/boot # Montamos la partición EFI sobre /mnt/boot
 
-  swapon /dev/sda4 # Activamos Swap
+  swapon /dev/sda2 # Activamos Swap
   ```
 
   <p>Y con esto ya tenemos creadas las particiones</p>
