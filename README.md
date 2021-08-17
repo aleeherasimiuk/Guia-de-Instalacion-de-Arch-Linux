@@ -49,7 +49,7 @@
   </p>
 </div>
 
-<div class"guiaoficial">
+<div class="guiaoficial">
   <h3>Guía Oficial</h3>
   <p>
     Es altamente recomendable tener siempre a mano la <a href=https://wiki.archlinux.org/title/installation_guide>guía
@@ -789,10 +789,10 @@
 
 </div>
 
-<div class = "internet2">
+<div class = "networkManager">
   <h3>Instalando Network Manager</h3>
 
-  <p>Sí, ya se que ya nos habíamos conectado a internet, pero eso fue en el instalador, ahora nos tenemos que conectar en nuestro sistema operativo recién instalado. Para eso vamos a usar la utilidad <code>Network Manager</code></p>
+  <p>Para poder conectarnos a internet en nuestro sistema ya instalado vamos a tener que usar una herramienta llamada <code>Network Manager</code>, pero claro, tenemos que instalarla antes de reiniciar porque sino no vamos a tener internet para instalarlo luego.</p>
 
   ```sh
   pacman -S networkmanager
@@ -840,9 +840,24 @@
     Ponemos nuestro usuario y contraseña y ya hemos terminado con la instalación del Sistema Operativo.
   </p>
 
-  
+
 </div>
 
+<div class="internet">
+
+  <h3>Conectándonos a Internet (de nuevo)</h3>
+  <p> Sí, ya sé que nos habíamos conectado a internet antes con iwctl, pero eso fue en el instalador, ahora si ya tenes el PC conectado por cable, podés continuar. Sino quedate que vamos a conectarnos al WiFI. <br>
+  Network Manager nos ofrece <code>nmcli</code> para conectarnos al WiFi. Si por ejemplo nuestra Red Wifi se llama <code>Batman</code> y la contraseña es <code>B4timovil</code>:
+  </p>
+
+  ```sh
+  nmcli device wifi list ## Listar las redes disponibles
+  nmcli device wifi connect Batman pasword B4timovil
+  ```
+
+  <p>Si tu Red WiFi o contraseña tiene espacios, ponela entre comillas.</p>
+
+</div>
 
 
 
