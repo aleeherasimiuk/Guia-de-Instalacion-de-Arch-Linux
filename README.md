@@ -45,6 +45,10 @@ Arch Linux es una distrubución de GNU/LINUX que sigue un modelo de lanzamiento
 - [Instalando Network Manager](#instalando-network-manager)
 - [Instalando GRUB](#instalando-grub)
 - [Conectándonos a Internet (de nuevo)](#conectándonos-a-internet-de-nuevo)
+- [Comandos útiles](#comandos-útiles)
+- [Instalando Yay](#instalando-yay)
+- [Instalando un Entorno de Escitorio](#instalando-un-entorno-de-escitorio)
+  - [KDE Plasma](#kde-plasma)
 
 <br>
 
@@ -577,7 +581,7 @@ echo "es_AR.UTF-8" >> /etc/locale.gen
 ```
 <br>
 <p>
-  Y los generamos los archivos de localización con:
+  Y generamos los archivos de localización con:
 </p>
   
 ```sh
@@ -615,12 +619,12 @@ Tenemos que definir un nombre para el equipo. El mío se va a llamar `archvm` y 
 ```sh
 echo "archvm" > /etc/hostname
 ```
+<br>
 
-  <br>
-
-
-Definimos el archivo /etc/hosts. <br>
-Reemplazá archvm por el nombre de tu equipo.<br>
+Bien, ahora tenemos que definir el archivo `/etc/hosts`.<br>
+Nos va a permitir mapear algunos alias a algunas IP's específicas. <br>
+De esta manera, por ejemplo, vamos a poder usar `localhost` para referirnos a nuestro equipo.<br>
+Reemplazá `archvm` por el nombre de tu equipo.<br>
 Revisá que esté todo bien copiado
 
 
@@ -629,7 +633,6 @@ echo "127.0.0.1\tlocalhost" >> /etc/hosts
 echo "::1\t\tlocalhost" >> /etc/hosts
 echo "127.0.1.1\tarchvm.localhost archvm" >> /etc/hosts
 ```
-<br>
 
 Tuvo que haber quedado algo así:
 
@@ -671,7 +674,7 @@ Podemos instalar varios paquetes de una también:
 ```sh
 pacman -S vim nano htop neofetch
 ```
-
+*pss*: Cuando estemos en el sistema ya instalado, logueados con nuestro usuario, vamos a tener que ejecutar este comando con `sudo`
 
 # Creando el usuario
 
@@ -680,7 +683,7 @@ Lo primero es definir la contraseña del root.
 ```sh
 passwd
 ```
-  <br>
+<br>
 
 Y ahora creamos el usuario, en mi caso lo voy a llamar batman, vos llamalo como quieras. <br>
 Luego le asignamos una contraseña.
@@ -701,25 +704,25 @@ Vamos a instalar `sudo` para poder ejecutar comandos con privilegios de root.
 pacman -S sudo
 ```
 
-  <p>Luego usando vim (o el editor que hayas instalado) descomentamos (borramos el `#`) la siguiente línea en `/etc/sudoers`</p>
+Luego usando vim (o el editor que hayas instalado) descomentamos (borramos el `#`s) la siguiente línea en `/etc/sudoers`
 
-  ```sh
-  ## Usamos este comando para editar el archivo
-  vim /etc/sudoers
+```sh
+## Usamos este comando para editar el archivo
+vim /etc/sudoers
 
-  ## Y descomentamos esta línea
-  %wheel ALL=(ALL) ALL
+## Y descomentamos esta línea
+%wheel ALL=(ALL) ALL
 
-  ## Salimos de vim con ESC y escribimos :wq!
-  ```
+## Salimos de vim con ESC y escribimos :wq!
+```
   <br>
 
  Si leíste lo que estamos haciendo, dice que hay que descomentar la línea para que todos aquellos usuarios que estén en el grupo `wheel` puedan ejecutar comandos de sudo, con lo cual ahora toca asignarnos ese grupo. <br>
-  Aparte de eso, vamos también a asignarnos otros grupos que podrían llegar a ser necesarios:
+Aparte de eso, vamos también a asignarnos otros grupos que podrían llegar a ser necesarios:
 
-  ```sh
-  usermod -aG wheel,audio,video,storage batman
-  ```
+```sh
+usermod -aG wheel,audio,video,storage batman
+```
   <br>
 
 # Instalando Network Manager
@@ -786,6 +789,87 @@ nmcli device wifi connect Batman pasword B4timovil
 ```
 
 Si tu Red WiFi o contraseña tiene espacios, ponela entre comillas.
+
+
+# Comandos útiles
+
+Ya tenemos una bella, hermosa, y muy poco intuitiva terminal. <br>
+Por eso te voy a dejar acá algunos comandos útiles. <br>
+No te olvides que de todas formas google existe!. <br>
+
+```sh
+ping archlinux.org ## Comprobar si tenemos conexión a internet
+reboot ## Reiniciar
+shutdown now ## Apagar
+ls -l ## Listar todos los archivos del directorio actual
+cd <nombreDirectorio> ## Cambiar de directorio
+cd .. ## Volver hacia atrás
+cd ~ ## Ir a la carpeta home
+pwd ## Saber en qué directorio estás
+cat <nombreArchivo> ## Leer un archivo de texto
+
+
+CTRL + C ## Para parar una ejecución
+```
+
+# Instalando Yay
+
+A veces los repositorios oficiales de Arch Linux (esos que usa `pacman` para descargar cosas) no tienen todo lo que queremos (Y sinó hace un `sudo pacman -S google-chrome` y fijate que pasa). <br>
+Por eso hay repositorios de la comunidad (AUR) que nos van a facilitar la vida. En nuestro caso vamos a usar [Yay](https://github.com/Jguer/yay). <br>
+Para poder instalarlo tenemos que ejecutar esta secuencia de comandos:
+
+```sh
+sudo pacman -Syu
+cd /opt
+sudo pacman -S git base-devel
+sudo git clone https://aur.archlinux.org/yay-git.git
+sudo chown -R batman:batman ./yay-git ## Reemplaza batman por tu usuario
+cd yay-git
+makepkg -si ## Se compilará e instalará
+cd ~ ## Volvemos a nuestro home
+
+```
+
+Y con esto ya podemos instalar paquetes con `yay`. <br>
+Lo bueno es que tiene casi las mismas opciones que `pacman` <br>
+Entonces, lógicamente para instalar un paquete con `yay` tenemos que ejecutar:
+
+```sh
+yay -S <nombrePaquete> ## Mirá que no puse sudo
+```
+
+Y para actualizar todos los paquetes... sí, adivinaste:
+
+```sh
+yay -Syu
+```
+
+# Instalando un Entorno de Escitorio
+
+Arch Linux viene pelado, le tenemos que instalar un entorno de escritorio para poder usarlo. <br>
+Te dejo algunos que seguro ya conocés de otras distribuciones, pero tené en cuenta que hay más y que hay todo un mundo y una vez que entrás ya no podés salir (googleá `qtile`, `xmonad`, `i3`, etc)
+
+## KDE Plasma
+
+Al principio es feo como golpearse el dedo chiquito del pie con la pata de la cama, pero con un poco de amor puede quedar muy bien.
+
+
+```sh
+sudo pacman -S xorg ## Gestiona la comunicación con los distintos periféricos ynuestro SO
+sudo pacman -S plasma-meta kde-applications-meta ## Instalamos KDE Plasma
+sudo systemctl enable sddm ## Habilitamos el servicio que nos permitirá loguearnos en el siguiente inicio
+reboot
+```
+Paciencia, esto va a tardar un rato.
+
+Si por algun motivo, ves que aparece algo como esto:
+
+```sh
+WARNING: Possible missing firmware for moudule: wd719x
+WARNING: Possible missing firmware for moudule: aic94xx
+WARNING: Possible missing firmware for moudule: xhci_pci
+```
+No te hagas problema que lo solucionamos más tarde.
 
 
 
