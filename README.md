@@ -177,11 +177,7 @@ ls /usr/share/kbd/keymaps/**/*.map.gz > /tmp/keymaps.txt
 nano /tmp/keymaps.txt
 ```
 
-O también podemos pasarle el comando mediante una pipe a more o a less, que formatean el output de un comando de forma en que podamos desplazarnos más cómodamente:
-
-```sh
-ls /usr/share/kbd/keymaps/**/*.map.gz | more
-```
+O también podemos pasarle el comando mediante una pipe a less, que formatea el output de un comando de forma en que podamos desplazarnos más cómodamente:
 
 ```sh
 ls /usr/share/kbd/keymaps/**/*.map.gz | less
@@ -808,7 +804,7 @@ Para poder instalarlo tenemos que ejecutar esta secuencia de comandos:
 ```sh
 sudo pacman -Syu
 cd /opt
-sudo pacman -S git base-devel
+sudo pacman -S git
 sudo git clone https://aur.archlinux.org/yay-git.git
 sudo chown -R batman:batman ./yay-git ## Reemplaza batman por tu usuario
 cd yay-git
