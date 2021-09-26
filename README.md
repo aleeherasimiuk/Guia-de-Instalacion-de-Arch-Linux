@@ -30,13 +30,18 @@ permisos, manejo de particiones, file system, archivos e inglés básico.
 - [Preparación del medio de instalación](#preparación-del-medio-de-instalación)
 - [Preparando la instalación](#preparando-la-instalación)
   - [Configuración de Teclado](#configuración-de-teclado)
-  - [Conectándonos a internet](#conectándonos-a-internet)
+- [Conectándonos a internet](#conectándonos-a-internet)
 - [Configurando la fecha y hora](#configurando-la-fecha-y-hora)
 - [Creando las Particiones](#creando-las-particiones)
   - [Explicación breve](#explicación-breve)
   - [Preparando las particiones](#preparando-las-particiones)
-  - [Ahora sí, creamos las particiones](#ahora-sí-creamos-las-particiones)
-  - [Formateando y Montando las particiones](#formateando-y-montando-las-particiones)
+  - [(Opción 1) Root en EXT4](#opción-1-root-en-ext4)
+    - [Ahora sí, creamos las particiones](#ahora-sí-creamos-las-particiones)
+    - [Formateando y Montando las particiones](#formateando-y-montando-las-particiones)
+  - [(Opción 2) Root en ZFS](#opción-2-root-en-zfs)
+    - [Instalar ZFS en el Live System](#instalar-zfs-en-el-live-system)
+    - [Formateado de las particiones](#formateado-de-las-particiones)
+    - [Crear y montar los datasets](#crear-y-montar-los-datasets)
 - [Configurando los mirrors](#configurando-los-mirrors)
 - [Ahora sí. Instalamos el sistema](#ahora-sí-instalamos-el-sistema)
 - [Generando el archivo fstab](#generando-el-archivo-fstab)
@@ -44,7 +49,9 @@ permisos, manejo de particiones, file system, archivos e inglés básico.
 - [Instalando Programas](#instalando-programas)
 - [Creando el usuario](#creando-el-usuario)
 - [Instalando Network Manager](#instalando-network-manager)
+- [(Opcional) Instalando ZFS](#opcional-instalando-zfs)
 - [Instalando GRUB](#instalando-grub)
+- [Finalizando y primer reinicio](#finalizando-y-primer-reinicio)
 - [Conectándonos a Internet (de nuevo)](#conectándonos-a-internet-de-nuevo)
 - [Comandos útiles](#comandos-útiles)
 - [Instalando Yay](#instalando-yay)
@@ -120,7 +127,7 @@ computadora que nos servirá para poder realizar la instalación y será tu áng
 
 
 ## Configuración de Teclado
-  
+
 Si te ganó la curiosidad y empezaste a escribir algo, te habrás dado cuenta que el teclado está distinto, y si no
 probá escribir una `ñ` o un `-` y vas a ver que no te hace caso y pone lo que se le da la
 gana.
@@ -238,7 +245,7 @@ station wlan0 connect Batman
 ## Nos va a pedir la contraseña y pondremos
 B4timovil
 
-## Para salir escribimos el 
+## Para salir escribimos el
 ## siguiente comando o apretamos Ctrl + C.
 exit
 ```
@@ -321,28 +328,33 @@ Vamos a crear algunas particiones para instalar Arch Linux que van a ser las sig
 
 
 - EFI Partition
-  >Si tenés Windows instalado, esta partición ya existe y no tenés que tocarla porque sino puede que Windows no arranque.<br> En esta partición están los archivos necesarios para que el Sistema Operativo arranque. <br> Si vas a instalar Arch Linux solo, o en una Máquina Virtual, vamos a asignarle unos 550MiB de espacio.
-  
-
-- Root
-  > La partición root la vamos a montar en `/` y la vamos a formatear como `ext4`.<br> Acá vamos a instalar el Sistema Operativo y todos los programas.<br> Si estás instalando sobre una PC real necesita tener por lo menos unos 25Gb de espacio (aunque puede ser más, en mi caso he necesitado hasta 50Gb).
-
+  >Si tenés Windows instalado, esta partición ya existe y no tenés que tocarla porque sino puede que Windows no arranque.<br> En esta partición están los archivos necesarios para que el Sistema Operativo arranque. <br> Si vas a instalar Arch Linux solo, o en una Máquina Virtual, vamos a asignarle unos 550MiB de espacio. Aquí estarán nuestras imágenes del kernel, el initramfs y el cargador de arranque.
 
 - Swap
-  >La partición SWAP no tiene punto de montaje ni File System.<br> Es una partición que sirve para que el Sistema Operativo envíe los procesos que no se están ejecutando actualmente sobre todo en equipos con poca Memoria RAM.<br> Por regla general si tenés hasta 2GB de Ram es recomendable usar 4GB de Swap. <br>A partir de 4GB de Ram es conveniente tener no más de 4GB de Swap. <br> Si tenés una cantidad exagerada de ram podés omitir esta partición.
+  >La partición SWAP no tiene punto de montaje ni File System.<br> Es una partición que sirve para que el Sistema Operativo envíe los procesos que no se están ejecutando actualmente sobre todo en equipos con poca Memoria RAM.<br> Por regla general si tenés hasta 2GB de Ram es recomendable usar 4GB de Swap. <br>A partir de 4GB de Ram es conveniente tener no más de 4GB de Swap. <br> Más swap puede ser útil si tenemos un portátil y queremos que hiberne a la Swap en vez de en Ram (teniendo alrededor de la misma cantidad de Swap que de Ram), o si tenemos que compilar proyectos grandes en los que nos podamos quedar sin Ram.
 
+
+- Root
+  > La partición de root la vamos a montar en `/`. Aquí es donde vivirán todos los archivos del sistema. A diferencia de la partición EFI, aquí tenemos varias opciones para el formato que darle, y también el número de particiones que se usarán o como se separarán los archivos.
+
+
+## (Opción 1) Root en EXT4
+Aquí explicamos cómo usar el formato EXT4 para la partición principal. Es uno de los formatos más usados y más antiguos: es fácil de configurar y ha sido muy testado en linux. Por otra parte, tiene menos características que otros sistemas como ZFS, que se detalla en la sección siguiente.
+
+- Root
+  > Si estás instalando sobre una PC real necesita tener por lo menos unos 25Gb de espacio (aunque puede ser más, en mi caso he necesitado hasta 50Gb).
 
 - Home
   >La partición HOME la vamos a montar en `/home` y la vamos a formatear como `ext4` también.<br> Acá van a estar todos los archivos personales (por ejemplo todo lo que está en el escritorio, la carpeta de descargas, fotos, videos, configuraciones, etc).<br> Vamos a asignarle todo el resto del espacio que nos sobre.
 
 <br>
 
-## Ahora sí, creamos las particiones
+### Ahora sí, creamos las particiones
 
-Después de tanto blabla vamos a ejecutar el siguiente comando para crear las particiones:
+Después de tanto blabla vamos a ejecutar el siguiente comando para crear las particiones. Una vez tengamos reconocido el disco al que instalar, en nuestro caso sda:
 
 ```sh
-cfdisk
+cfdisk /dev/sda
 ```
 
 Si nos pregunta qué tipo de tabla de particiones queremos le decimos que vamos a usar GPT. <br>
@@ -387,11 +399,11 @@ Entonces nos queda:
 - `/dev/sda2` para Swap
 - `/dev/sda3` para Root
 - `/dev/sda4` para Home
-  
+
 Finalmente le damos a `[Write]`, confirmamos la operación y salimos con `[Quit]`.
 
 
-## Formateando y Montando las particiones
+### Formateando y Montando las particiones
 
 Vamos a formatear y montar las particiones que acabamos de crear.
 <br>
@@ -441,6 +453,164 @@ fdisk -l
   <div align="center">
     <img alt="particiones" src="img/fdisk.png" />
   </div>
+
+## (Opción 2) Root en ZFS
+
+Como alternativa a usar EXT4, podemos usar el formato ZFS. Este formato tiene una serie de características muy interesantes, incluyendo pero no limitado a:
+
+- Compresión transparente del sistema: todos los archivos automáticamente se comprimen y descomprimen al escribirlos al disco, reduciendo el espacio ocupado y el número de lecturas/escrituras que desgastan el disco. El algoritmo de compresión es muy rápido y no supone un gran coste de computación.
+- Encriptado nativo: el sistema nos preguntará por la contraseña del disco al arrancar. Esto hace que si nos roban el disco, el atacante no pueda acceder a los datos del interior sin la contraseña.
+- Subvolúmenes: se puede entender como "particiones" dentro de nuestro disco que almacenan distintos tipos de datos. Sin embargo no tienen un tamaño fijo y se pueden crear, destruir, copiar, en cualquier momento.
+- Snapshots: copias de seguridad de volúmenes, que debido a cómo funcionan el sistema (Copy on Write), no ocupan espacio al crearlas, sino que empiezan a ocupar cuando hay diferencias entre el estado del volumen y la copia. Por ejemplo: si borramos un archivo de 1MB del volumen, la copia pasará a ocupar 1MB.
+- Integridad de archivos: ZFS desconfía de los discos, y hace todo lo posible para comprobar que los archivos no se corrompan, como crear una checksum al modificarlos.
+- Otras funciones como RAID nativo (usar varios discos como un disco grande en el que se puede perder un disco sin problema), deduplicación de archivos (eliminar las copias de archivos que están en dos ubicaciones distintas para ahorrar espacio), zfs send/receive (enviar volúmenes por internet), etc.
+
+
+El punto negativo es que por problemas de licencia, los drivers no se instalan con el kernel y se tendrán que instalar por separado.
+
+Empezamos igual que en EXT4 creando las particiones:
+
+```sh
+cfdisk /dev/sda
+```
+
+Si tenés windows instalado es <b>CLAVE</b> que no toques las particiones que ya están hechas y nos vamos a enfocar en aquellas que dicen `Free Space`.
+<br>
+Acá te podés mover con las flechas hacia arriba y abajo para seleccionar la partición, o izquierda y derecha para seleccionar una opción.
+<br>
+Si nos paramos en `Free Space` y seleccionamos `[New]` nos preguntará el espacio que le queremos asignar y vamos poner lo que ya anotamos antes:
+
+- 550MiB para EFI Partition
+- 4G para Swap
+- El resto para el Root
+
+Y con si seleccionamos `[Type]` vamos a poder seleccionar el tipo.
+
+- EFI System para la EFI Partition
+- Linux Swap para la Swap
+- Linux Filesystem para el Root
+
+  <div align="center">
+    <img alt="particiones" src="img/zfs_cfdisk_0.png" />
+  </div>
+
+Finalmente le damos a `[Write]`, confirmamos la operación y salimos con `[Quit]`.
+
+### Instalar ZFS en el Live System
+
+A diferencia de EXT4, los drivers de ZFS no vienen incluidos en el live system de Arch, por lo que para poder formatear nuestra partición primero tendremos que instalarlos.
+<br>
+Por suerte un miembro de la comunidad ha puesto a disposición un script que lo hace de forma automática:
+
+```sh
+curl -s https://eoli3n.github.io/archzfs/init | bash
+```
+  <div align="center">
+    <img alt="particiones" src="img/zfs_archzfs.png" />
+  </div>
+
+
+### Formateado de las particiones
+
+Creamos las particiones EFI y SWAP:
+
+```sh
+mkfs.fat -F32 /dev/sda1
+mkswap /dev/sda2
+```
+
+Para crear el volumen ZFS, la documentación de ZFS recomienda elegir el disco según su id, en vez de `/dev/sd[letra]`. Para conocer su id, ejecutamos:
+
+```sh
+ls -l /dev/disk/by-id
+```
+  <div align="center">
+    <img alt="particiones" src="img/zfs_diskbyid.png" />
+  </div>
+
+En nuestro caso, el que apunta a `/dev/sda3` es `/dev/disk/by-id/ata-QEMU_HARDDISK_QM00003-part3`.
+
+Para crear el volumen ZFS, habrá que pasar varias opciones. Se listan una debajo de otra para poder leerse mejor, aunque se pueden pasar seguidas:
+
+
+```sh
+zpool create -f -o ashift=12           \
+             -O acltype=posixacl       \
+             -O xattr=sa               \
+             -O relatime=on            \
+             -O atime=off              \
+             -O dnodesize=auto         \
+             -O normalization=formD    \
+             -O mountpoint=none        \
+             -O canmount=off           \
+             -O devices=off            \
+             -R /mnt                   \
+             zroot /dev/disk/by-id/ata-QEMU_HARDDISK_QM00003-part3
+```
+
+Si queremos compresión, añadimos:
+```sh
+             -O compression=lz4       \
+```
+Si queremos encriptado con contraseña, añadimos:
+```sh
+             -O encryption=aes-256-gcm \
+             -O keyformat=passphrase   \
+             -O keylocation=prompt     \
+```
+
+
+  <div align="center">
+    <img alt="particiones" src="img/zfs_format.png" />
+  </div>
+
+### Crear y montar los datasets
+Como hemos comentado antes, en ZFS se puede crear unos "volúmenes" o datasets, con los que podemos separar partes del disco sin tener que hacer una partición para cada una.
+
+<br>
+Vamos a crear algunos datasets:
+
+- **zroot/arch/default**: aquí estarán los archivos del sistema. Antes de realizar una actualización, podemos hacerle una snapshot (copia) y si algo va mal, podemos volver a la versión anterior. También podremos instalar otros sistemas operativos bajo zroot/ubuntu, zroot/fedora, etc.
+
+- **zroot/var/log**: se montará en /var/log, y será independiente de zroot/arch, asi si algo ha ido mal y tenemos que reiniciar desde un snapshot, podremos acceder a los logs del sistema.
+- **zroot/data/home**: se montará en /home y tendrá los archivos de los usuarios, independiente del sistema operativo.
+
+Los comandos serán:
+```sh
+zfs create -o mountpoint=none                   zroot/arch
+zfs create -o mountpoint=/ -o canmount=noauto   zroot/arch/default
+zfs create -o mountpoint=none                   zroot/var
+zfs create -o mountpoint=/var/log               zroot/var/log
+zfs create -o mountpoint=none                   zroot/data
+zfs create -o mountpoint=/home                  zroot/data/home
+```
+
+Desmontamos y volvemos a montar todo para comprobar que no haya errores:
+
+```sh
+zpool export zroot
+zpool import -d /dev/disk/by-id/ata-QEMU_HARDDISK_QM00003-part3 -R /mnt zroot -N
+zfs load-key zroot # Sólo si hemos usado encriptado
+zfs mount zroot/arch/default
+zfs mount -a
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
+swapon /dev/sda2
+```
+
+
+Comprobamos que esté todo correcto:
+
+  <div align="center">
+    <img alt="particiones" src="img/zfs_check.png" />
+  </div>
+
+
+
+
+
+
+
 
 
 # Configurando los mirrors
@@ -495,6 +665,8 @@ Bien, hacer eso todo el tiempo es insano, por eso el Sistema Operativo tiene un 
 ```sh
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
+
+IMPORTANTE, sólo en ZFS: tenemos que eliminar todas las lineas del fstab que hagan referencia a nuestro zroot, dejando las demás.
 
 Y si por curiosidad queremos verlo podemos hacer:
 
@@ -563,12 +735,12 @@ cat /etc/locale.gen | grep -E "en|es" | grep UTF
 Elegimos uno (o alguno) de esos. Y hacemos lo siguiente. En mi caso voy a seleccionar inglés de Estados Unidos y español de Argentina, pero vos podes seleccionar el que más te guste.
 
 ```sh
-echo "en_US.UTF-8" >> /etc/locale.gen
-echo "es_AR.UTF-8" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+echo "es_AR.UTF-8 UTF-8" >> /etc/locale.gen
 ```
 
 Y generamos los archivos de localización con:
-  
+
 ```sh
 locale-gen
 ```
@@ -614,9 +786,9 @@ Revisá que esté todo bien copiado
 
 
 ```sh
-echo "127.0.0.1\tlocalhost" >> /etc/hosts
-echo "::1\t\tlocalhost" >> /etc/hosts
-echo "127.0.1.1\tarchvm.localhost archvm" >> /etc/hosts
+echo -e "127.0.0.1\tlocalhost" >> /etc/hosts
+echo -e "::1\t\tlocalhost" >> /etc/hosts
+echo -e "127.0.1.1\tarchvm.localhost archvm" >> /etc/hosts
 ```
 
 Tuvo que haber quedado algo así:
@@ -687,11 +859,11 @@ Vamos a instalar `sudo` para poder ejecutar comandos con privilegios de root.
 pacman -S sudo
 ```
 
-Luego usando vim (o el editor que hayas instalado) descomentamos (borramos el `#`s) la siguiente línea en `/etc/sudoers`
+Luego, nos agregaremos el grupo wheel a los grupos que tienen permiso para usar sudo.
 
 ```sh
 ## Usamos este comando para editar el archivo
-vim /etc/sudoers
+EDITOR=vim visudo
 
 ## Y descomentamos esta línea
 %wheel ALL=(ALL) ALL
@@ -727,6 +899,73 @@ Todavía no nos vamos a conectar, porque seguimos con la conexión que teníamos
 </div>
 
 
+# (Opcional) Instalando ZFS
+
+Si optamos por usar ZFS en el sistema, tenemos que terminar de configurarlo antes.
+<br>
+Como ya se ha comentado, por los problemas de licencia se deben de instalar los drivers a parte del kernel. Para EXT4 los drivers ya vienen incluidos en el kernel y no hace falta más configuración.
+
+Lo primero que debemos de hacer es habilitar unos repositorios en los que se distribuyen los módulos de kernel ya compilados para el kernel que usar Arch.
+<br>
+Con nuestro editor de texto favorito, editamros `/etc/pacman.conf` y añadimos al final:
+
+```
+[archzfs]
+Server = https://archzfs.com/$repo/x86_64
+```
+
+Sincronizamos la base de datos de paquetes:
+```sh
+pacman -Syu
+```
+
+
+Para instalar los módulos del kernel deberemos instalar la versión del paquete que se corresponda con nuestro kernel. Anteriormente instalamos `linux`, así que tenemos que usar el paquete `zfs-linux`. Si más adelante instalamos otro kernel como `linux-lts`, habrá que instalar también `zfs-linux-lts`.
+
+```sh
+pacman -S zfs-linux
+```
+
+Después, ajustamos nuestro sistema para que pueda arrancar correctamente desde ZFS, generando el `hostid` y el caché de discos:
+
+```sh
+zgenhostid
+zpool set bootfs=zroot/arch/default zroot
+zpool set cachefile=/etc/zfs/zpool.cache zroot
+systemctl enable zfs.target
+systemctl enable zfs-import-cache.service
+systemctl enable zfs-mount.service
+systemctl enable zfs-import.target
+```
+
+Editando `/etc/mkinitcpio.conf` para que se incluyan los drivers de ZFS en el initramfs, en la parte "HOOKS", borramos `fsck` y `filesystems` y añadimos `zfs filesystems` al final, quedando:
+
+```
+HOOKS=(base udev autodetect modconf block keyboard zfs filesystems)
+```
+
+Recreamos el initramfs con:
+```sh
+mkinitcpio -P
+```
+
+Finalmente nos adelantamos un paso: en la sección siguiente instala GRUB, y antes de usar `grub-mkconfig` vuelve aquí.
+<br>
+Tenemos que editar `/etc/default/grub`, para añadir los parámetros:
+
+```
+GRUB_CMDLINE_LINUX="dozfs root=ZFS=zroot/arch/default"
+```
+
+Generamos la configuración de grub con:
+
+```sh
+ZPOOL_VDEV_NAME_PATH=1 grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+
+
+
 # Instalando GRUB
 
 Ahora toca instalar Grub, que es el gestor de arranque de nuestro sistema operativo.<br>
@@ -737,16 +976,27 @@ Vamos a ejecutar los siguientes comandos:
 
   ```sh
   ## Lee bien cada comando antes de ejecutarlo
-  pacman -S grub efibootmgr
-  grub-install --target=x86_64-efi --efi-directory=/boot 
+  pacman -S grub efibootmgr dosfstools
+  grub-install --target=x86_64-efi --efi-directory=/boot
   grub-mkconfig -o /boot/grub/grub.cfg
   ```
+
+# Finalizando y primer reinicio
 
 Luego hay que cruzar los dedos, reiniciar y sacar el pen drive
 
 ```sh
 exit
 umount -R /mnt
+```
+
+```sh
+# Solo si usamos ZFS
+zfs unmount -a
+zpool export zroot
+```
+
+```sh
 reboot
 ```
 
