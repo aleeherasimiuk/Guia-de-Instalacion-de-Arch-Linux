@@ -57,6 +57,7 @@ permisos, manejo de particiones, file system, archivos e inglés básico.
 - [Instalando Yay](#instalando-yay)
 - [Instalando un Entorno de Escitorio](#instalando-un-entorno-de-escitorio)
   - [KDE Plasma](#kde-plasma)
+- [Optimizando del sistema](#optimizando-del-sistema)
 
 <br>
 
@@ -1106,6 +1107,52 @@ No te hagas problema que lo solucionamos más tarde.
 
 
 
+# Optimizando del sistema
+
+Usando nuestro editor favorito, vamos a cambiar unas opciones de configuración de pacman.
+
+Para empezar, abrimos `/etc/pacman.conf`, y cambiaremos:
+
+```sh
+Color # Por defecto viene comentado, activa los colorines en los comandos
+ParallelDownloads = 5
+```
+
+Ahora abriremos `/etc/makepkg.conf` y editamos las líneas en las que se encuentran...
+
+```sh
+# Usar todos los nucleos disponibles cuando nos encontremos con paquetes que haya que compilar.
+MAKEFLAGS="-j$(nproc)"
+
+# Compilar los paquetes necesarios desde la RAM en vez del disco duro. Reducimos el desgaste del disco y aceleramos la compilación. No usar si tenemos poca (<4GB) RAM.
+BUILDDIR=/tmp/makepkg
+```
+
+Una herramienta que podemos instalar se llama "Ananicy", que automaticamente establece las prioridades de los procesos para que el sistema responda mejor.
+
+```sh
+yay -S ananicy
+sudo systemctl enable --now ananicy
+```
+
+Cuando hagamos una actualización al sistema, puede que haya archivos de configuración en `/etc` que también haya que actualizarlos. Para ello podemos usar la herramienta:
+
+```sh
+yay -S etc-update
+# Después de hacer yay -Syu, ejecutamos
+sudo etc-update
+```
+
+Para reducir el desgaste en nuestro SSD, tenemos que hacer un TRIM cada cierto tiempo. Se puede activar con:
+
+```
+sudo systemctl enable --now fstrim.timer
+```
+
+En ZFS podemos activarlo con:
+```
+sudo zpool set autotrim=on zroot
+```
 
 <br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
