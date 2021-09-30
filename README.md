@@ -31,7 +31,7 @@ permisos, manejo de particiones, file system, archivos e inglés básico.
 - [Preparando la instalación](#preparando-la-instalación)
   - [Configuración de Teclado](#configuración-de-teclado)
   - [Conectándonos a internet](#conectándonos-a-internet)
-- [Configurando la fecha y hora](#configurando-la-fecha-y-hora)
+  - [Configurando la fecha y hora](#configurando-la-fecha-y-hora)
 - [Creando las Particiones](#creando-las-particiones)
   - [Explicación breve](#explicación-breve)
   - [Preparando las particiones](#preparando-las-particiones)
@@ -132,7 +132,7 @@ Esta configuración tendrá efecto sólamente durante la instalación, luego ver
 
 <br>
 
-<b>TL;DR</b>
+**TL;DR**
 <br>
 Si estás en latinoamérica el comando que tenés que ejecutar es el siguiente:
 
@@ -186,7 +186,7 @@ ls /usr/share/kbd/keymaps/**/*.map.gz | less
 Teniendo ya el teclado configurado podemos continuar con la instalación.
 
 
-# Conectándonos a internet
+## Conectándonos a internet
 
 Si estás conectado por cable esto no te va a tomar mucho tiempo, podés probar hacer:
 
@@ -250,7 +250,7 @@ conectes al modem por cable y sigas así con la instalación. Es probable que lu
 paquetes que instalemos te permitan conectarte al WiFi.
 
 
-# Configurando la fecha y hora
+## Configurando la fecha y hora
 
 Ahora que tenemos nuestro instalador conectado a internet, vamos a configurar la fecha y hora.<br>
 Para eso tenemos una herramienta que nos permite consultar o modificar la fecha y hora del sistema que es
@@ -292,6 +292,12 @@ Si estás en una Máquina virtual o haciendo una instalación limpia habrás vis
 </div>
 
 En cambio si estás instalando en una PC con windows instalado habrás visto algo más similar a lo siguiente:
+
+<div align="center">
+  <img alt="lsblk" src="img/lsblk3.png" />
+</div>
+
+O a lo siguiente:
 
 <div align="center">
   <img alt="lsblk" src="img/lsblk2.png" />
