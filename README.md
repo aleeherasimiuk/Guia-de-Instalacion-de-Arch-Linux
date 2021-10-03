@@ -24,6 +24,7 @@ Para el seguimiento de esta guía se asume que se conocen los comandos básicos 
 - [Preparación del medio de instalación](#preparación-del-medio-de-instalación)
 - [Preparando la instalación](#preparando-la-instalación)
   - [Configuración de Teclado](#configuración-de-teclado)
+    - [Para los curiosos](#para-los-curiosos)
   - [Conectándonos a internet](#conectándonos-a-internet)
   - [Configurando la fecha y hora](#configurando-la-fecha-y-hora)
 - [Creando las Particiones](#creando-las-particiones)
@@ -36,6 +37,9 @@ Para el seguimiento de esta guía se asume que se conocen los comandos básicos 
     - [Instalar ZFS en el Live System](#instalar-zfs-en-el-live-system)
     - [Formateado de las particiones](#formateado-de-las-particiones)
     - [Crear y montar los datasets](#crear-y-montar-los-datasets)
+  - [(Opción 3) Root en BTRFS](#opción-3-root-en-btrfs)
+    - [Formateando las particiones](#formateando-las-particiones)
+    - [Crear y montar los subvolúmenes](#crear-y-montar-los-subvolúmenes)
 - [Configurando los mirrors](#configurando-los-mirrors)
 - [Ahora sí. Instalamos el sistema](#ahora-sí-instalamos-el-sistema)
 - [Generando el archivo fstab](#generando-el-archivo-fstab)
@@ -44,6 +48,7 @@ Para el seguimiento de esta guía se asume que se conocen los comandos básicos 
 - [Creando el usuario](#creando-el-usuario)
 - [Instalando Network Manager](#instalando-network-manager)
 - [(Opcional) Instalando ZFS](#opcional-instalando-zfs)
+- [(Opcional) Instalando BTRFS](#opcional-instalando-btrfs)
 - [Instalando GRUB](#instalando-grub)
 - [Finalizando y primer reinicio](#finalizando-y-primer-reinicio)
 - [Conectándonos a Internet (de nuevo)](#conectándonos-a-internet-de-nuevo)
@@ -52,6 +57,9 @@ Para el seguimiento de esta guía se asume que se conocen los comandos básicos 
 - [Instalando un Entorno de Escitorio](#instalando-un-entorno-de-escitorio)
   - [KDE Plasma](#kde-plasma)
 - [Optimizando del sistema](#optimizando-del-sistema)
+  - [Configuración de Pacman](#configuración-de-pacman)
+  - [Ananicy (Nice daemon)](#ananicy-nice-daemon)
+  - [SSD TRIM](#ssd-trim)
 
 # Disclaimer
 
@@ -78,12 +86,16 @@ Si vas a realizar esta instalación sobre una máquina virtual, lo conveniente e
 
 En caso de que utilices una máquina VMWare, esto se logra añadiendo la siguiente línea al archivo .vmx de la vm: `firmware = "efi"`
 
+Si usas Virt Manager, antes de terminar de configurar la máquina virtual tienes que elegir el sistema UEFI, como se ve en la captura de pantalla. Es posible que al hacerlo te cambie el orden de los discos de arranque, que hay que volver a ajustarlos:
+
+![virt manager](img/virt-manager.png)
+
 Otros softwares de máquinas virtuales tienen otras formas muy distintas de entrar en modo UEFI y algunos incluso no pueden hacerlo, por lo que dejamos esto en tus manos.
 Dicho esto, empecemos.
 
 # Preparación del medio de instalación
 
-Bien, lo primero y principal es la preparación del dispositivo booteable con la imagen del sistema que vamos a instalar. Para eso hay que descargarlo desde [la página oficial de Arch Linux](https://www.archlinux.org/download/) y mediante un software como [Rufus](https://rufus.ie/en/) y grabarlo en modo GPT para sistemas UEFI en una USB.
+Bien, lo primero y principal es la preparación del dispositivo booteable con la imagen del sistema que vamos a instalar. Para eso hay que descargarlo desde [la página oficial de Arch Linux](https://www.archlinux.org/download/) y mediante un software como [Rufus](https://rufus.ie/en/) o [Etcher](https://www.balena.io/etcher/) y grabarlo en modo GPT para sistemas UEFI en una USB.
 
 Luego hay que reiniciar la PC y seleccionar como medio de arranque el USB accediendo a la BIOS.
 
@@ -249,7 +261,7 @@ O a lo siguiente:
 
 ## Explicación breve
 
-Los discos instalados los vamos identificar por verse como `sda`, `sdb`, etc. O en el caso de nvme (que es una unidad de almacenamiento ultra rápida) se ven como `nvme0n1`.
+Los discos instalados los vamos identificar por verse como `sda`, `sdb`, etc. O en el caso de nvme (que es una unidad de almacenamiento ultra rápida) se ven como `nvme0n1`. Si estás en una máquina virtual puede que se vean como `vda`.
 
 El primer disco lo vamos a ver como sda, el segundo como sdb, y así sucesivamente.
 
@@ -263,18 +275,18 @@ Vamos a crear algunas particiones para instalar Arch Linux que van a ser las sig
 
 - EFI Partition
   - En esta partición están los archivos necesarios para que el Sistema Operativo arranque.
-  
+
     Si tenés Windows instalado, esta partición ya existe y no tenés que tocarla porque sino puede que Windows no arranque.
 
     Si vas a instalar Arch Linux solo, o en una Máquina Virtual, vamos a asignarle unos 550MiB de espacio. Aquí estarán nuestras imágenes del kernel, el initramfs y el cargador de arranque.
 
 - Swap
   - Es una partición que sirve para que el Sistema Operativo envíe los procesos que no se están ejecutando actualmente sobre todo en equipos con poca Memoria RAM.
-  
+
     La partición SWAP no tiene punto de montaje ni File System.
-  
+
     Por regla general si tenés hasta 2GB de Ram es recomendable usar 4GB de Swap. A partir de 4GB de Ram es conveniente tener no más de 4GB de Swap.
-  
+
     Más swap puede ser útil si tenemos un portátil y queremos que hiberne a la Swap en vez de en Ram (teniendo alrededor de la misma cantidad de Swap que de Ram), o si tenemos que compilar proyectos grandes en los que nos podamos quedar sin Ram.
 
 - Root
@@ -289,9 +301,9 @@ Aquí explicamos cómo usar el formato EXT4 para la partición principal. Es uno
 
 - Home
   - La partición HOME la vamos a montar en `/home` y la vamos a formatear como `ext4` también.
-  
+
     Acá van a estar todos los archivos personales (por ejemplo todo lo que está en el escritorio, la carpeta de descargas, fotos, videos, configuraciones, etc).
-  
+
     Vamos a asignarle todo el resto del espacio que nos sobre.
 
 ### Ahora sí, creamos las particiones
@@ -393,7 +405,7 @@ fdisk -l
 Como alternativa a usar EXT4, podemos usar el formato ZFS. Este formato tiene una serie de características muy interesantes, incluyendo pero no limitado a:
 
 - **Compresión transparente del sistema:**
-  
+
   Todos los archivos automáticamente se comprimen y descomprimen al escribirlos al disco, reduciendo el espacio ocupado y el número de lecturas/escrituras que desgastan el disco. El algoritmo de compresión es muy rápido y no supone un gran coste de computación.
 
 - **Encriptado nativo:**
@@ -401,7 +413,7 @@ Como alternativa a usar EXT4, podemos usar el formato ZFS. Este formato tiene un
   El sistema nos preguntará por la contraseña del disco al arrancar. Esto hace que si nos roban el disco, el atacante no pueda acceder a los datos del interior sin la contraseña.
 
 - **Subvolúmenes:**
-  
+
   Se puede entender como "particiones" dentro de nuestro disco que almacenan distintos tipos de datos. Sin embargo no tienen un tamaño fijo y se pueden crear, destruir, copiar, en cualquier momento.
 
 - **Snapshots:**
@@ -417,7 +429,7 @@ Como alternativa a usar EXT4, podemos usar el formato ZFS. Este formato tiene un
   - RAID nativo: usar varios discos como un disco grande en el que se puede recuperar información perdida cuando uno o algunos de los discos se rompe.
 
   - Deduplicación de archivos: eliminación las copias de archivos que están en dos ubicaciones distintas para ahorrar espacio.
-  
+
   - ZFS send/receive (enviar volúmenes por internet)
 
   - Y más...
@@ -442,7 +454,7 @@ Y con si seleccionamos `[Type]` vamos a poder seleccionar el tipo.
 - Linux Swap para la Swap
 - Linux Filesystem para el Root
 
-![particiones](img/zfs_cfdisk_0.png)
+![zfs_cfdisk](img/zfs_cfdisk_0.png)
 
 Finalmente le damos a `[Write]`, confirmamos la operación y salimos con `[Quit]`.
 
@@ -456,7 +468,7 @@ Por suerte un miembro de la comunidad ha puesto a disposición un script que lo 
 curl -s https://eoli3n.github.io/archzfs/init | bash
 ```
 
-![particiones](img/zfs_archzfs.png)
+![zfs_archzfs](img/zfs_archzfs.png)
 
 ### Formateado de las particiones
 
@@ -473,7 +485,7 @@ Para crear el volumen ZFS, la documentación de ZFS recomienda elegir el disco s
 ls -l /dev/disk/by-id
 ```
 
-![particiones](img/zfs_diskbyid.png)
+![zfs_diskbyid](img/zfs_diskbyid.png)
 
 En nuestro caso, el que apunta a `/dev/sda3` es `/dev/disk/by-id/ata-QEMU_HARDDISK_QM00003-part3`.
 
@@ -508,7 +520,7 @@ Si queremos encriptado con contraseña, añadimos:
              -O keylocation=prompt     \
 ```
 
-![particiones](img/zfs_format.png)
+![zfs_format](img/zfs_format.png)
 
 ### Crear y montar los datasets
 
@@ -549,6 +561,116 @@ Comprobamos que esté todo correcto:
 
 ![particiones](img/zfs_check.png)
 
+## (Opción 3) Root en BTRFS
+
+Finalmente como otra alternativa podemos usar el sistema btrfs. Se trata de un sistema que es un compromiso entre la cantidad de características de ZFS, pero fácil de instalar e incluido por defecto en el kernel, como EXT4. En Fedora 33 pasó a ser el formato de almacenamiento por defecto. Entre sus características:
+
+- **Compresión transparente del sistema:**
+
+  Todos los archivos automáticamente se comprimen y descomprimen al escribirlos al disco, reduciendo el espacio ocupado y el número de lecturas/escrituras que desgastan el disco. El algoritmo de compresión es muy rápido y no supone un gran coste de computación.
+
+
+- **Subvolúmenes:**
+
+  Se puede entender como "particiones" dentro de nuestro disco que almacenan distintos tipos de datos. Sin embargo no tienen un tamaño fijo y se pueden crear, destruir, copiar, en cualquier momento.
+
+- **Snapshots:**
+
+  Copias de seguridad de volúmenes, que debido a cómo funcionan el sistema (Copy on Write), no ocupan espacio al crearlas, sino que empiezan a ocupar cuando hay diferencias entre el estado del volumen y la copia. Por ejemplo: si borramos un archivo de 1MB del volumen, la copia pasará a ocupar 1MB.
+
+Igual que en las demás opciones, empezamos creando las particiones y después les daremos el formato.
+
+
+```sh
+cfdisk /dev/sda
+```
+
+Actuamos muy similarmente a como se haría con ext4, nos paramos en `Free Space` y seleccionamos `[New]` nos preguntará el espacio que le queremos asignar y vamos poner lo siguiente:
+
+- 550MiB para EFI Partition
+- 4G para Swap
+- El resto para el Root
+
+Y con si seleccionamos `[Type]` vamos a poder seleccionar el tipo.
+
+- EFI System para la EFI Partition
+- Linux Swap para la Swap
+- Linux Filesystem para el Root
+
+![btrfs_cfdisk](img/zfs_cfdisk_0.png)
+
+Finalmente le damos a `[Write]`, confirmamos la operación y salimos con `[Quit]`.
+
+
+### Formateando las particiones
+
+Creamos las particiones EFI y SWAP:
+
+```sh
+mkfs.fat -F32 /dev/sda1
+mkswap /dev/sda2
+```
+
+Para crear el sistema btrfs sólo necesitamos:
+
+```sh
+mkfs.btrfs /dev/sda3
+```
+
+### Crear y montar los subvolúmenes
+
+Podemos entender los subvolúmenes en btrfs como unas "carpetas" especiales. Por una parte, las podemos montar y asignar disntintos parámetros como si fuesen particiones, pero no ocupan un espacio fijo. La convención es llamar a los subvolúmenes empezando con la letra '@' para saber que es un subvol.
+
+Igual que con ZFS, podemos organizarlos como queramos. En este tutorial proponemos la siguiente organización:
+
+
+- **@arch:** aquí estarán los archivos del sistema. Antes de realizar una actualización, podemos hacerle una snapshot (copia) y si algo va mal, podemos volver a la versión anterior. También podremos instalar otros sistemas operativos bajo @ubuntu, @fedora, etc.
+
+- **@var_log:** se montará en /var/log, y será independiente de @arch, asi si algo ha ido mal y tenemos que reiniciar desde un snapshot, podremos acceder a los logs del sistema.
+- **@home:** se montará en /home y tendrá los archivos de los usuarios, independiente del sistema operativo.
+
+
+Primero montamos el sistema base de forma provisional:
+
+```sh
+mount /dev/sda3 /mnt
+cd /mnt
+```
+
+Creamos los subvolúmenes:
+
+```sh
+btrfs subvolume create @arch
+btrfs subvolume create @var_log
+btrfs subvolume create @home
+```
+
+Si hacemos un simple `ls`, podemos ver que se han creado unas carpetas con los mismos nombres. Sin embargo con `btrfs subvolume list /mnt`, el comando nos dice que están registradas esas carpetas como volúmenes.
+
+Ahora mismo el volumen por defecto de `/dev/sda3` es `/`, es decir, la raíz. Para evitar problemas en el arranque vamos a registrar nuestro volumen `@arch` como el volumen por defecto.
+
+```sh
+btrfs subvolume set-default @arch
+```
+
+Ahora desmontamos el sistema y volvemos a montar todo con sus opciones. En este caso usaremos compresión transparente `lzo`, que es la que ofrece un mejor rendimiento. Si queremos un sistema más comprimido podemos usar `zstd`, o `no` para no usar compresión (el valor por defecto si borramos la opción es `ztsd`).
+
+```sh
+cd /
+umount /mnt
+mount -o noatime,space_cache,compress=lzo /dev/sda3 /mnt
+mkdir -p /mnt/{home,var/log,boot}
+mount -o noatime,space_cache,compress=lzo,subvol=@home /dev/sda3 /mnt/home
+mount -o noatime,space_cache,compress=lzo,subvol=@var_log /dev/sda3 /mnt/var/log
+mount /dev/sda1 /mnt/boot
+swapon /dev/sda2
+```
+
+Si todo ha salido bien, deberíamos ver un montaje así:
+
+![Btrfs btrfs_check](img/btrfs_check.png)
+
+
 # Configurando los mirrors
 
 Los paquetes que instalamos se descargan de servidores que están repartidos por todo el mundo, hay un archivo que ahora vamos a revisar, que tiene en orden de prioridad descendente cada uno de los servidores. Normalmente ya viene configurado con los mirrors más rápidos para nuestra ubicación. Lo podemos ver con el siguiente comando:
@@ -573,6 +695,10 @@ cp /etc/pacman.d/mirrorlist.bak /etc/pacman.d/mirrorlist ## Levantamos el backup
 
 ## Sino ya podemos borrar el backup
 rm /etc/pacman.d/mirrorlist.bak
+
+## Copiamos nuestros mirrors desde el Live a nuestro sistema para no tener que recrearlo
+mkdir -p /mnt/etc/pacman.d
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 ```
 
 # Ahora sí. Instalamos el sistema
@@ -599,7 +725,7 @@ Bien, hacer eso todo el tiempo es insano, por eso el Sistema Operativo tiene un 
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
-IMPORTANTE, sólo en ZFS: tenemos que eliminar todas las lineas del fstab que hagan referencia a nuestro zroot, dejando las demás.
+**IMPORTANTE**, sólo en ZFS: tenemos que eliminar todas las lineas del fstab que hagan referencia a nuestro zroot, dejando las demás.
 
 Y si por curiosidad queremos verlo podemos hacer:
 
@@ -866,6 +992,28 @@ Generamos la configuración de grub con:
 ZPOOL_VDEV_NAME_PATH=1 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
+# (Opcional) Instalando BTRFS
+
+Si hemos usado btrfs como formato para nuestra partición, antes de terminar tenemos que instalar los componentes necesarios para que funcione.
+
+```sh
+pacman -S btrfs-progs
+```
+
+También tenemos que asegurarnos que nuestro initramfs contenga los módulos de btrfs. Editamos nuestro `/etc/mkinitcpio.conf` y editamos:
+
+```sh
+# Por defecto viene vacío
+MODULES=(btrfs)
+```
+
+Guardamos, y regeneramos el initramfs:
+
+```sh
+mkinitcpio -P
+```
+
+
 # Instalando GRUB
 
 Ahora toca instalar Grub, que es el gestor de arranque de nuestro sistema operativo. Nos va a permitir elegir el sistema operativo con el que vamos a arrancar cada vez que iniciemos la PC.
@@ -945,15 +1093,13 @@ A veces los repositorios oficiales de Arch Linux (esos que usa `pacman` para des
 Por eso hay repositorios de la comunidad (AUR) que nos van a facilitar la vida. En nuestro caso vamos a usar [Yay](https://github.com/Jguer/yay). Para poder instalarlo tenemos que ejecutar esta secuencia de comandos:
 
 ```sh
-sudo pacman -Syu
-cd /opt
-sudo pacman -S git
-sudo git clone https://aur.archlinux.org/yay-git.git
-sudo chown -R batman:batman ./yay-git ## Reemplaza batman por tu usuario
+sudo pacman -Syu git
+cd /tmp
+git clone https://aur.archlinux.org/yay-git.git
 cd yay-git
-makepkg -si ## Se compilará e instalará
+makepkg -sric ## Se compilará e instalará
 cd ~ ## Volvemos a nuestro home
-
+rm -rf /tmp/yay-git # Ya no necesitamos esto, yay es capaz de actualizarse a él mismo
 ```
 
 Y con esto ya podemos instalar paquetes con `yay`. Lo bueno es que tiene casi las mismas opciones que `pacman`. Entonces, lógicamente para instalar un paquete con `yay` tenemos que ejecutar:
@@ -999,13 +1145,15 @@ No te hagas problema que lo solucionamos más tarde.
 
 # Optimizando del sistema
 
+## Configuración de Pacman
+
 Usando nuestro editor favorito, vamos a cambiar unas opciones de configuración de pacman.
 
 Para empezar, abrimos `/etc/pacman.conf`, y cambiaremos:
 
 ```sh
 Color # Por defecto viene comentado, activa los colorines en los comandos
-ParallelDownloads = 5
+ParallelDownloads = 5 # Descargar varios paquetes a la vez, en vez de uno a uno
 ```
 
 Ahora abriremos `/etc/makepkg.conf` y editamos las líneas en las que se encuentran...
@@ -1014,15 +1162,8 @@ Ahora abriremos `/etc/makepkg.conf` y editamos las líneas en las que se encuent
 # Usar todos los nucleos disponibles cuando nos encontremos con paquetes que haya que compilar.
 MAKEFLAGS="-j$(nproc)"
 
-# Compilar los paquetes necesarios desde la RAM en vez del disco duro. Reducimos el desgaste del disco y aceleramos la compilación. No usar si tenemos poca (<4GB) RAM.
+# Compilar los paquetes necesarios desde la RAM en vez del disco duro. Reducimos el desgaste del disco y aceleramos la compilación. No usar si tenemos <4GB RAM.
 BUILDDIR=/tmp/makepkg
-```
-
-Una herramienta que podemos instalar se llama "Ananicy", que automaticamente establece las prioridades de los procesos para que el sistema responda mejor.
-
-```sh
-yay -S ananicy
-sudo systemctl enable --now ananicy
 ```
 
 Cuando hagamos una actualización al sistema, puede que haya archivos de configuración en `/etc` que también haya que actualizarlos. Para ello podemos usar la herramienta:
@@ -1032,6 +1173,37 @@ yay -S etc-update
 # Después de hacer yay -Syu, ejecutamos
 sudo etc-update
 ```
+
+Durante la instalación, ya configuramos los mirrors. Si en el futuro alguno de estos mirrors se cae o se se vuelve lento, seguirá en nuestra configuración, pero no queremos eso. Instalamos `reflector` en nuestro sistema y lo configuramos:
+
+```sh
+yay -S reflector
+```
+
+Configuramos reflector para que use los mirrors más rápidos y recientes, editando el archivo `/etc/xdg/reflector/reflector.conf`:
+
+```
+--save /etc/pacman.d/mirrrorlist
+--protocol https
+--latest 30
+--sort rate
+```
+
+```sh
+sudo systemctl enable --now reflector.timer
+```
+
+## Ananicy (Nice daemon)
+
+Una herramienta que podemos instalar se llama "Ananicy", que automaticamente establece las prioridades de los procesos para que el sistema responda mejor.
+
+```sh
+yay -S ananicy
+sudo systemctl enable --now ananicy
+```
+
+## SSD TRIM
+
 
 Para reducir el desgaste en nuestro SSD, tenemos que hacer un TRIM cada cierto tiempo. Se puede activar con:
 
