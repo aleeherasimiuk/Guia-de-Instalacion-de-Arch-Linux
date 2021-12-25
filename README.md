@@ -1125,7 +1125,7 @@ Te dejo algunos que seguro ya conocés de otras distribuciones, pero tené en cu
 Al principio es feo como golpearse el dedo chiquito del pie con la pata de la cama, pero con un poco de amor puede quedar muy bien.
 
 ```sh
-sudo pacman -S xorg ## Gestiona la comunicación con los distintos periféricos ynuestro SO
+sudo pacman -S xorg ## Gestiona la comunicación con los distintos periféricos y nuestro SO
 sudo pacman -S plasma-meta kde-applications-meta ## Instalamos KDE Plasma
 sudo systemctl enable sddm ## Habilitamos el servicio que nos permitirá loguearnos en el siguiente inicio
 reboot
