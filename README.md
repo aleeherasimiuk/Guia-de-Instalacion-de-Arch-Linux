@@ -1185,6 +1185,11 @@ reboot
 
 Paciencia, esto va a tardar un rato.
 
+Una vez instalado y reiniciado, aparecerá la pantalla para iniciar sesión.
+
+>Si estás en vmware y no podés cambiar la resolución:
+>System Settings > Startup and ShutDown > Background Services > Disable KScreen2
+
 Si por algun motivo, ves que aparece algo como esto:
 
 ```sh
@@ -1268,3 +1273,5 @@ En ZFS podemos activarlo con:
 ```sh
 sudo zpool set autotrim=on zroot
 ```
+
+
