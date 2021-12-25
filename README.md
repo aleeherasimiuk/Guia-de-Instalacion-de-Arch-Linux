@@ -658,10 +658,10 @@ Ahora desmontamos el sistema y volvemos a montar todo con sus opciones. En este 
 ```sh
 cd /
 umount /mnt
-mount -o noatime,space_cache,compress=lzo /dev/sda3 /mnt
+mount -o noatime,space_cache=v2,compress=lzo /dev/sda3 /mnt
 mkdir -p /mnt/{home,var/log,boot}
-mount -o noatime,space_cache,compress=lzo,subvol=@home /dev/sda3 /mnt/home
-mount -o noatime,space_cache,compress=lzo,subvol=@var_log /dev/sda3 /mnt/var/log
+mount -o noatime,space_cache=v2,compress=lzo,subvol=@home /dev/sda3 /mnt/home
+mount -o noatime,space_cache=v2,compress=lzo,subvol=@var_log /dev/sda3 /mnt/var/log
 mount /dev/sda1 /mnt/boot
 swapon /dev/sda2
 ```
