@@ -1086,14 +1086,18 @@ cat <nombreArchivo> ## Leer un archivo de texto
 CTRL + C ## Para parar una ejecución
 ```
 
-# Instalando Yay
+# Repositorios de la Comunidad
 
 A veces los repositorios oficiales de Arch Linux (esos que usa `pacman` para descargar cosas) no tienen todo lo que queremos (Y sinó hace un `sudo pacman -S google-chrome` y fijate que pasa).
 
-Por eso hay repositorios de la comunidad (AUR) que nos van a facilitar la vida. En nuestro caso vamos a usar [Yay](https://github.com/Jguer/yay). Para poder instalarlo tenemos que ejecutar esta secuencia de comandos:
+Por eso hay repositorios de la comunidad (AUR) que nos van a facilitar la vida. 
+
+## Instalando Yay (Opción 1)
+
+En este caso vamos a usar [Yay](https://github.com/Jguer/yay). Para poder instalarlo tenemos que ejecutar esta secuencia de comandos:
 
 ```sh
-sudo pacman -Syu git
+sudo pacman -Sy git
 cd /tmp
 git clone https://aur.archlinux.org/yay-git.git
 cd yay-git
@@ -1113,6 +1117,54 @@ Y para actualizar todos los paquetes... sí, adivinaste:
 ```sh
 yay -Syu
 ```
+
+## Instalando Paru (Opción 2)
+
+Otra opción para los repositorios de la comunidad es usar [Paru](https://github.com/Morganamilo/paru). Para instalarlo tenemos que ejecutar esta secuencia de comandos:
+
+```sh
+sudo pacman -Sy git
+cd /tmp
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si ## Se compilará e instalará
+cd ~ ## Volvemos a nuestro home
+rm -rf /tmp/paru # Ya no necesitamos esto, paru es capaz de actualizarse a él mismo
+```
+
+Comandos básicos:
+
+```sh
+
+paru <target> ## Buscar e instalar el paquete
+
+paru ## Actualizar todos los paquetes, es un alias de paru -Syu
+
+paru -S <target> ## Instalar un paquete en específico
+
+paru -Sua # Actualizar los paquetes de AUR
+
+paru -Qua ## Ver las actualizaciones de paquetes de AUR disponibles
+```
+## Instalando Flatpak (Opcional)
+
+Muchas veces los programas que instalamos tienen dependencias que pueden conflictuar entre ellas, por eso la gente maravillosa de Flatpak también tiene un gestor de paquetes que instala cada uno de ellos con sus dependencias de manera aislada; recomiendo utilizarlo para programas grandes, como por ejemplo una suite de office. Instalarlo es muy sencillo 
+
+```sh
+sudo pacman -S flatpak
+```
+
+Para usarlo es bastante simple
+```sh
+flatpak install <target> ## Instalar un paquete
+flatpak update <target> ## Actualizar un paquete
+flatpak uninstall <target> ## Desinstalar un paquete
+flatpak list ## Listar todos los paquetes
+```
+
+[Acá](https://flathub.org/home) vas a encontrar una lista de apps que se pueden instalar con Flatpak
+
+Reiniciamos y ya tendremos nuestros gestores de paquetes instalados
 
 # Instalando un Entorno de Escitorio
 
@@ -1152,7 +1204,7 @@ Usando nuestro editor favorito, vamos a cambiar unas opciones de configuración 
 Para empezar, abrimos `/etc/pacman.conf`, y cambiaremos:
 
 ```sh
-Color # Por defecto viene comentado, activa los colorines en los comandos
+Color # Por defecto viene comentado, activa los colores en la salida de los comandos
 ParallelDownloads = 5 # Descargar varios paquetes a la vez, en vez de uno a uno
 ```
 
